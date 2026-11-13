@@ -1,4 +1,5 @@
 import { $, el, api, toast } from "./util.js";
+import { assetSrc, pickImage, refreshAssets } from "./assets.js";
 
 const ADV_KEYS = ["check-url", "timeout", "alt-status-codes", "allow-insecure", "same-tab", "hide-url"];
 
@@ -14,6 +15,8 @@ function iconSrc(icon) {
       di: [`https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${name}.svg`, false],
     }[kind];
   }
+  const local = assetSrc(icon);
+  if (local) return [local, false];
   if (/^(https?:)?\/\//.test(icon ?? "") || (icon ?? "").startsWith("/")) return [icon, false];
   return null;
 }
@@ -34,6 +37,7 @@ export async function loadMonitors() {
   const root = $("#monitors");
   let groups;
   try {
+    await refreshAssets().catch(() => {}); // préfixe d'URL + aperçus des images locales
     groups = await api("GET", "/api/monitors");
   } catch (e) {
     root.replaceChildren(el("div", { className: "empty" }, e.message));
@@ -176,7 +180,15 @@ function section(group, widget) {
         el("input", { type: "checkbox", checked: !!s[key], onchange: (e) => { s[key] = e.target.checked; mark(); refreshBadges(); } }), label);
     }
     r.append(
-      handle, icoSlot, titleIn, text("url", "url-in", "https://…"), iconIn,
+      handle, icoSlot, titleIn, text("url", "url-in", "https://…"),
+      el("span", { className: "icon-field" }, iconIn, el("button", {
+        className: "ghost pick", textContent: "🖼", title: "Choisir dans la banque d'images",
+        onclick: async () => {
+          const url = await pickImage();
+          if (!url) return;
+          s.icon = url; iconIn.value = url; mark(); icoSlot.replaceChildren(iconPreview(s));
+        },
+      })),
       el("div", { className: "actions" },
         badges,
         el("button", { className: "ghost", textContent: "Options ▾", title: "Options avancées", onclick: () => r.classList.toggle("open") }),

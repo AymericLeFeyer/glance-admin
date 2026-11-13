@@ -3,13 +3,13 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { timingSafeEqual } from "node:crypto";
-import { checkName, hash, httpError, storageFromEnv } from "./storage.js";
+import { ASSET_TYPES, checkAsset, checkName, hash, httpError, storageFromEnv } from "./storage.js";
 import { addMonitor, deleteMonitor, listMonitors, parseDoc, updateMonitor, validate } from "./monitors.js";
 
 const PUBLIC = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png" };
 
-export function createApp(storage, { password } = {}) {
+export function createApp(storage, { password, assetsUrl = "/assets" } = {}) {
   const json = (res, status, body) => {
     res.writeHead(status, { "content-type": "application/json" });
     res.end(JSON.stringify(body));
@@ -28,6 +28,17 @@ export function createApp(storage, { password } = {}) {
     }
   };
 
+  const rawBody = async (req, max = 5_000_000) => {
+    const chunks = [];
+    let n = 0;
+    for await (const c of req) {
+      n += c.length;
+      if (n > max) throw httpError(413, "Image trop grosse (5 Mo max)");
+      chunks.push(c);
+    }
+    return Buffer.concat(chunks);
+  };
+
   const authorized = (req) => {
     if (!password) return true;
     const given = Buffer.from((req.headers.authorization ?? "").replace(/^Basic /, ""), "base64").toString();
@@ -39,7 +50,7 @@ export function createApp(storage, { password } = {}) {
 
   async function api(req, res, url) {
     const m = req.method;
-    if (m === "GET" && url.pathname === "/api/info") return json(res, 200, { storage: storage.label });
+    if (m === "GET" && url.pathname === "/api/info") return json(res, 200, { storage: storage.label, assetsUrl });
     if (m === "GET" && url.pathname === "/api/files") return json(res, 200, await storage.list());
 
     if (url.pathname === "/api/file") {
@@ -68,6 +79,39 @@ export function createApp(storage, { password } = {}) {
         await storage.write(name, content);
         return json(res, 200, { hash: hash(content) });
       }
+    }
+
+    // Banque d'images locale (dossier d'assets de Glance)
+    if (url.pathname === "/api/assets") {
+      if (!storage.assets) throw httpError(501, "Banque d'images non disponible");
+      if (m === "GET") return json(res, 200, { url: assetsUrl, files: await storage.assets.list() });
+      if (m === "POST") {
+        const name = checkAsset(url.searchParams.get("name"));
+        if (!url.searchParams.has("overwrite") && (await storage.assets.list()).some((f) => f.name === name)) {
+          throw httpError(409, `${name} existe déjà`);
+        }
+        const data = await rawBody(req);
+        if (!data.length) throw httpError(400, "Fichier vide");
+        await storage.assets.write(name, data);
+        return json(res, 200, { name, size: data.length });
+      }
+      if (m === "DELETE") {
+        await storage.assets.remove(checkAsset(url.searchParams.get("name")));
+        return json(res, 200, { ok: true });
+      }
+    }
+    if (m === "GET" && url.pathname === "/api/asset") {
+      if (!storage.assets) throw httpError(501, "Banque d'images non disponible");
+      const name = checkAsset(url.searchParams.get("name"));
+      const data = await storage.assets.read(name).catch(() => {
+        throw httpError(404, "Image introuvable");
+      });
+      res.writeHead(200, {
+        "content-type": ASSET_TYPES[name.split(".").pop().toLowerCase()],
+        "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox", // SVG ouvert directement : pas de script
+        "cache-control": "no-cache",
+      });
+      return res.end(data);
     }
 
     // Monitors de tous les fichiers (hors fichiers sans widget monitor)
@@ -146,7 +190,7 @@ export function createApp(storage, { password } = {}) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const storage = storageFromEnv();
   const port = Number(process.env.PORT || 8084);
-  createServer(createApp(storage, { password: process.env.ADMIN_PASSWORD })).listen(port, () =>
+  createServer(createApp(storage, { password: process.env.ADMIN_PASSWORD, assetsUrl: (process.env.ASSETS_URL || "/assets").replace(/\/$/, "") })).listen(port, () =>
     console.log(`glance-admin sur :${port} → ${storage.label}`),
   );
 }

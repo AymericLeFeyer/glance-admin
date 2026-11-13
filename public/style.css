@@ -97,6 +97,27 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .foot .spacer { flex: 1; }
 .add-site { color: var(--accent); }
 
+.icon-field { display: flex; align-items: center; min-width: 0; } .icon-field input { flex: 1; }
+.icon-field .pick { padding: 2px 6px; opacity: .55; } .row:hover .icon-field .pick { opacity: 1; }
+
+/* Banque d'images */
+#images { padding: 24px; max-width: 1180px; width: 100%; margin: 0 auto; border-radius: 12px; }
+#images.drop, dialog.drop { outline: 2px dashed var(--accent); outline-offset: -6px; }
+.hint { color: var(--dim); margin: -6px 0 16px; font-size: 13px; } .hint code { background: var(--hover); border-radius: 4px; padding: 1px 5px; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.tile { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px; box-shadow: var(--shadow); }
+.tile .thumb { display: grid; place-items: center; width: 100%; height: 96px; padding: 6px; border: 0; background: repeating-conic-gradient(var(--hover) 0 25%, transparent 0 50%) 0 0 / 14px 14px; border-radius: 8px; }
+.tile .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.tile .meta { display: flex; flex-direction: column; padding: 6px 2px 0; min-width: 0; }
+.tile .fname { font: 12px ui-monospace, "SF Mono", Menlo, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile small { color: var(--dim); }
+.tile .del { position: absolute; top: 12px; right: 12px; background: var(--panel); border: 1px solid var(--line); opacity: 0; }
+.tile:hover .del { opacity: 1; }
+dialog.wide { width: min(760px, 94vw); }
+dialog.wide #picker-body { max-height: 56vh; overflow: auto; }
+dialog menu .spacer { flex: 1; }
+dialog menu { align-items: center; }
+
 dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 14px; padding: 22px; width: min(420px, 92vw); }
 dialog::backdrop { background: rgba(0, 0, 0, .45); }
 dialog h3 { margin: 0 0 14px; }

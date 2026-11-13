@@ -17,7 +17,7 @@ async function start(opts) {
     const r = await fetch(base + p, { method, headers: { "content-type": "application/json", ...headers }, body: body && JSON.stringify(body) });
     return { status: r.status, json: await r.json().catch(() => null) };
   };
-  return { dir, call, close: () => {
+  return { dir, base, call, close: () => {
     server.closeAllConnections();
     server.close();
   } };
@@ -103,5 +103,24 @@ test("création de fichier", async () => {
   assert.equal((await s.call("POST", "/api/file", { name: "widgets/jeux.yml" })).status, 409);
   assert.equal((await s.call("POST", "/api/file", { name: "../x.yml" })).status, 400);
   assert.equal((await s.call("POST", "/api/file", { name: "x.txt" })).status, 400);
+  s.close();
+});
+
+test("banque d'images : envoi, liste, lecture, suppression", async () => {
+  const s = await start();
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 255, 128, 10]);
+  const post = (name, q = "") => fetch(`${s.base}/api/assets?name=${name}${q}`, { method: "POST", body: png });
+  assert.deepEqual((await s.call("GET", "/api/assets")).json, { url: "/assets", files: [] });
+  assert.equal((await post("logo.png")).status, 200);
+  assert.equal((await post("logo.png")).status, 409);
+  assert.equal((await post("logo.png", "&overwrite=1")).status, 200);
+  assert.equal((await post("evil.txt")).status, 400);
+  assert.equal((await post("..%2Fx.png")).status, 400);
+  assert.deepEqual((await s.call("GET", "/api/assets")).json.files, [{ name: "logo.png", size: 8 }]);
+  const r = await fetch(`${s.base}/api/asset?name=logo.png`);
+  assert.equal(r.headers.get("content-type"), "image/png");
+  assert.deepEqual(Buffer.from(await r.arrayBuffer()), png); // binaire intact
+  assert.equal((await s.call("DELETE", "/api/assets?name=logo.png")).status, 200);
+  assert.equal((await fetch(`${s.base}/api/asset?name=logo.png`)).status, 404);
   s.close();
 });

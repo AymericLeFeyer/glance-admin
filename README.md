@@ -12,3 +12,18 @@ de config (comme en SSH à la main) et formulaire propre pour les widgets `monit
 
 Accès aux fichiers : SSH (`SSH_HOST`, `SSH_PORT`, `SSH_USER`, `GLANCE_CONFIG_DIR`, clé) — voir
 `docker-compose.yml`. En dev : `npm run dev` (compile l'éditeur, utilise `./sample`).
+
+## Banque d'images
+
+L'onglet **Images** envoie des images (png, jpg, gif, webp, svg, ico, avif ; 5 Mo max) dans le dossier
+`GLANCE_ASSETS_DIR` du LXC (défaut : `<GLANCE_CONFIG_DIR>/assets`). Dans un monitor, le bouton 🖼 du champ
+« Icône » les propose, ce qui écrit `/assets/<nom>`.
+
+Pour que Glance les serve, ajoute dans `glance.yml` (le dossier doit être celui de `GLANCE_ASSETS_DIR`, vu depuis Glance) :
+
+```yaml
+server:
+  assets-path: /app/assets
+```
+
+Si ton préfixe d'URL diffère de `/assets`, règle `ASSETS_URL`.

@@ -20,6 +20,7 @@
       <h1>Glance <span>Admin</span></h1>
       <nav>
         <button data-tab="monitors" class="active">Monitors</button>
+        <button data-tab="images">Images</button>
         <button data-tab="yaml">Fichiers YAML</button>
       </nav>
       <div class="right">
@@ -33,6 +34,7 @@
     </header>
     <main>
       <section id="monitors"></section>
+      <section id="images" hidden></section>
       <section id="yaml" hidden>
         <aside>
           <button id="new-file" class="primary">+ Nouveau fichier</button>
@@ -58,6 +60,15 @@
           <button value="ok" class="primary">Créer</button>
         </menu>
       </form>
+    </dialog>
+    <dialog id="picker" class="wide">
+      <h3>Choisir une image</h3>
+      <div id="picker-body"></div>
+      <menu>
+        <span id="picker-upload"></span>
+        <span class="spacer"></span>
+        <button onclick="this.closest('dialog').close()">Fermer</button>
+      </menu>
     </dialog>
     <div id="toast"></div>
     <script type="module" src="/app.js"></script>

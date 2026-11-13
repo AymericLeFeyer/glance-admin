@@ -1,5 +1,6 @@
 import { $, el, api, toast } from "./util.js";
 import { loadMonitors } from "./monitors.js";
+import { loadImages } from "./assets.js";
 
 // ---------- Thème : clair / sombre / système (défaut) ----------
 function setTheme(choice) {
@@ -18,9 +19,10 @@ setTheme(document.documentElement.dataset.theme ?? "system");
 for (const b of document.querySelectorAll("nav button")) {
   b.onclick = () => {
     document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("active", x === b));
-    for (const id of ["monitors", "yaml"]) $(`#${id}`).hidden = id !== b.dataset.tab;
+    for (const id of ["monitors", "images", "yaml"]) $(`#${id}`).hidden = id !== b.dataset.tab;
     if (b.dataset.tab === "yaml") initYaml();
-    else if (yamlDirty()) loadMonitors();
+    else if (b.dataset.tab === "images") loadImages();
+    else loadMonitors();
   };
 }
 

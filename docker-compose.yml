@@ -7,6 +7,8 @@
 #   SSH_USER          utilisateur SSH                                 (obligatoire)
 #   GLANCE_CONFIG_DIR dossier de glance.yml sur le LXC, ex. /opt/glance/config (obligatoire)
 #   SSH_PRIVATE_KEY   contenu de la clé privée (tout le bloc, sans passphrase) (obligatoire)
+#   GLANCE_ASSETS_DIR dossier des images sur le LXC (défaut : <GLANCE_CONFIG_DIR>/assets). Optionnel.
+#   ASSETS_URL        préfixe des images côté Glance (défaut /assets). Optionnel.
 #   ADMIN_PASSWORD    mot de passe (basic auth, identifiant libre). Optionnel.
 #
 # La clé est écrite dans /tmp/ssh_key au démarrage : aucun fichier à poser sur l'hôte.
@@ -25,6 +27,8 @@ services:
       SSH_USER: ${SSH_USER:?utilisateur SSH}
       GLANCE_CONFIG_DIR: ${GLANCE_CONFIG_DIR:?dossier de config Glance}
       SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY:?clé privée SSH}
+      GLANCE_ASSETS_DIR: ${GLANCE_ASSETS_DIR:-}
+      ASSETS_URL: ${ASSETS_URL:-/assets}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       - known_hosts:/data
