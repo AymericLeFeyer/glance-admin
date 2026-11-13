@@ -1,6 +1,18 @@
 :root {
+  --bg: #f4f5f8; --panel: #ffffff; --line: #dcdfe7; --text: #1b1d26; --dim: #636879;
+  --accent: #3b6fe0; --on-accent: #ffffff; --danger: #d03b3b; --ok: #1f9d55;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16171d; --panel: #1f212a; --line: #2e313d; --text: #e6e7ec; --dim: #8b8fa0;
+    --accent: #6d9cff; --on-accent: #0b1020; --danger: #ff6b6b; --ok: #4ade80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
   --bg: #16171d; --panel: #1f212a; --line: #2e313d; --text: #e6e7ec; --dim: #8b8fa0;
-  --accent: #6d9cff; --danger: #ff6b6b; --ok: #4ade80;
+  --accent: #6d9cff; --on-accent: #0b1020; --danger: #ff6b6b; --ok: #4ade80;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -12,11 +24,11 @@ nav { display: flex; gap: 4px; }
 button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { opacity: .45; cursor: default; }
-button.primary { background: var(--accent); border-color: var(--accent); color: #0b1020; font-weight: 600; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
 button.ghost { background: none; border-color: transparent; color: var(--dim); padding: 4px 8px; }
 button.ghost:hover { color: var(--text); }
 button.danger:hover { color: var(--danger); }
-nav button.active { background: var(--accent); border-color: var(--accent); color: #0b1020; }
+nav button.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 main { padding: 24px; max-width: 1200px; margin: 0 auto; }
 [hidden] { display: none !important; }
 input, textarea { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-width: 0; }
@@ -56,3 +68,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); }
   #yaml { grid-template-columns: 1fr; }
   #files { flex-direction: row; flex-wrap: wrap; }
 }
+
+.theme { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.theme button { border: 0; border-radius: 0; background: none; color: var(--dim); padding: 6px 10px; }
+.theme button.active { background: var(--accent); color: var(--on-accent); }

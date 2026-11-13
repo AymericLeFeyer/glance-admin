@@ -21,6 +21,19 @@ function toast(msg, kind = "ok") {
   toastTimer = setTimeout(() => (t.className = ""), 3500);
 }
 
+// ---------- Thème : clair / sombre / système (défaut) ----------
+function setTheme(choice) {
+  if (choice === "system") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = choice;
+  try {
+    if (choice === "system") localStorage.removeItem("theme");
+    else localStorage.setItem("theme", choice);
+  } catch {}
+  document.querySelectorAll("[data-theme-choice]").forEach((b) => b.classList.toggle("active", b.dataset.themeChoice === choice));
+}
+for (const b of document.querySelectorAll("[data-theme-choice]")) b.onclick = () => setTheme(b.dataset.themeChoice);
+setTheme(document.documentElement.dataset.theme ?? "system");
+
 // ---------- Onglets ----------
 for (const b of document.querySelectorAll("nav button")) {
   b.onclick = () => {

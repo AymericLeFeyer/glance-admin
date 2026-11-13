@@ -4,6 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Glance Admin</title>
+    <script>
+      // Appliqué avant le premier rendu (pas de flash) : « system » = pas d'attribut.
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
@@ -14,6 +21,11 @@
         <button data-tab="yaml">Fichiers YAML</button>
       </nav>
       <small id="storage"></small>
+      <div class="theme" id="theme" role="group" aria-label="Thème">
+        <button data-theme-choice="light" title="Clair">☀ Clair</button>
+        <button data-theme-choice="system" title="Suivre le système">Auto</button>
+        <button data-theme-choice="dark" title="Sombre">☾ Sombre</button>
+      </div>
     </header>
     <main>
       <section id="monitors"></section>
