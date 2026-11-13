@@ -28,13 +28,6 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       - known_hosts:/data
-    entrypoint:
-      - sh
-      - -c
-      - |
-        umask 077
-        printf '%s\n' "$$SSH_PRIVATE_KEY" > /tmp/ssh_key
-        SSH_KEY_PATH=/tmp/ssh_key SSH_KNOWN_HOSTS=/data/known_hosts exec node server/main.js
 
 volumes:
   known_hosts:
