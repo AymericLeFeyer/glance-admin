@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Glance Admin</title>
     <script>
-      // Appliqué avant le premier rendu (pas de flash) : « system » = pas d'attribut.
+      // Appliqué avant le premier rendu (pas de flash) : « système » = pas d'attribut.
       try {
         const t = localStorage.getItem("theme");
         if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
@@ -20,11 +20,13 @@
         <button data-tab="monitors" class="active">Monitors</button>
         <button data-tab="yaml">Fichiers YAML</button>
       </nav>
-      <small id="storage"></small>
-      <div class="theme" id="theme" role="group" aria-label="Thème">
-        <button data-theme-choice="light" title="Clair">☀ Clair</button>
-        <button data-theme-choice="system" title="Suivre le système">Auto</button>
-        <button data-theme-choice="dark" title="Sombre">☾ Sombre</button>
+      <div class="right">
+        <small id="storage"></small>
+        <div class="theme" role="group" aria-label="Thème">
+          <button data-theme-choice="light" title="Clair">☀ Clair</button>
+          <button data-theme-choice="system" title="Suivre le système">Auto</button>
+          <button data-theme-choice="dark" title="Sombre">☾ Sombre</button>
+        </div>
       </div>
     </header>
     <main>
@@ -35,12 +37,23 @@
           <div class="bar">
             <strong id="filename">—</strong>
             <span id="status"></span>
-            <button id="save" class="primary" disabled>Enregistrer (Ctrl+S)</button>
+            <button id="save" class="primary" disabled>Enregistrer <small>⌘S</small></button>
           </div>
-          <textarea id="text" spellcheck="false" disabled></textarea>
+          <div id="cm"></div>
         </div>
       </section>
     </main>
+    <dialog id="new-section">
+      <form method="dialog">
+        <h3>Nouvelle section</h3>
+        <label>Titre <input id="ns-title" placeholder="ex. Smart home" required /></label>
+        <label>Fichier <select id="ns-file"></select></label>
+        <menu>
+          <button value="cancel" formnovalidate>Annuler</button>
+          <button value="ok" class="primary">Créer</button>
+        </menu>
+      </form>
+    </dialog>
     <div id="toast"></div>
     <script type="module" src="/app.js"></script>
   </body>

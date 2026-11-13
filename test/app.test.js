@@ -74,3 +74,23 @@ test("mot de passe optionnel", async () => {
   assert.equal((await s.call("GET", "/api/files", undefined, { authorization: ok })).status, 200);
   s.close();
 });
+
+test("ajouter / supprimer une section, valider", async () => {
+  const s = await start();
+  const [{ file, hash }] = (await s.call("GET", "/api/monitors")).json;
+  assert.equal((await s.call("POST", "/api/monitors", { file, title: "Nouvelle", hash })).status, 200);
+  let widgets = (await s.call("GET", "/api/monitors")).json[0].widgets;
+  assert.deepEqual(widgets.map((w) => w.title), ["Services", "Nouvelle"]);
+  const h2 = (await s.call("GET", "/api/monitors")).json[0].hash;
+  assert.equal((await s.call("DELETE", "/api/monitors", { file, path: widgets[1].path, hash: h2 })).status, 200);
+  widgets = (await s.call("GET", "/api/monitors")).json[0].widgets;
+  assert.equal(widgets.length, 1);
+  assert.match(await readFile(path.join(s.dir, file), "utf8"), /# Services principaux/);
+
+  const bad = (await s.call("POST", "/api/validate", { content: "a: [1\nb: 2" })).json;
+  assert.equal(bad[0].severity, "error");
+  const hint = (await s.call("POST", "/api/validate", { content: "widgets:\n  - type: nimportequoi\n  - type: monitor\n    sites:\n      - title: x\n" })).json;
+  assert.deepEqual(hint.map((m) => m.message).sort(), ["Ce site n'a pas d'url", "Type de widget inconnu : « nimportequoi »"]);
+  assert.deepEqual((await s.call("POST", "/api/validate", { content: "a: 1\n" })).json, []);
+  s.close();
+});

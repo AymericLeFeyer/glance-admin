@@ -111,3 +111,58 @@ export function updateMonitor(text, path, sites, meta = {}) {
   }
   return doc.toString({ lineWidth: 0, flowCollectionPadding: false });
 }
+
+const OUT = { lineWidth: 0, flowCollectionPadding: false };
+
+// Ajoute une section (widget monitor vide) juste après le dernier monitor du fichier.
+export function addMonitor(text, title) {
+  const doc = parseDoc(text);
+  const all = findMonitors(doc);
+  if (!all.length) throw httpError(400, "Aucun widget monitor dans ce fichier : impossible de savoir où insérer");
+  const last = all[all.length - 1];
+  const parent = doc.getIn(last.path.slice(0, -1), true);
+  const node = doc.createNode({ type: "monitor", title: title || "Nouvelle section", cache: "1m", sites: [] });
+  parent.items.splice(last.path.at(-1) + 1, 0, node);
+  return doc.toString(OUT);
+}
+
+export function deleteMonitor(text, path) {
+  const doc = parseDoc(text);
+  const target = findMonitors(doc).find((m) => JSON.stringify(m.path) === JSON.stringify(path));
+  if (!target) throw httpError(404, "Widget monitor introuvable (le fichier a changé ?)");
+  const parent = doc.getIn(path.slice(0, -1), true);
+  parent.items.splice(path.at(-1), 1);
+  return doc.toString(OUT);
+}
+
+const WIDGET_TYPES = new Set([
+  "bookmarks", "calendar", "calendar-legacy", "change-detection", "clock", "custom-api", "dns-stats",
+  "docker-containers", "extension", "group", "hacker-news", "html", "iframe", "lobsters", "markets",
+  "monitor", "reddit", "releases", "repository", "rss", "search", "server-stats", "split-column",
+  "to-do", "twitch-channels", "twitch-top-games", "videos", "weather",
+]);
+
+// Marqueurs pour l'éditeur : { from, to, severity: error|warning|info, message } (offsets de caractères).
+export function validate(text) {
+  const doc = YAML.parseDocument(text, { prettyErrors: false });
+  const out = [];
+  for (const [list, severity] of [[doc.errors, "error"], [doc.warnings, "warning"]]) {
+    for (const e of list) out.push({ from: e.pos[0], to: Math.max(e.pos[1], e.pos[0] + 1), severity, message: e.message.split("\n")[0] });
+  }
+  if (doc.errors.length) return out;
+  YAML.visit(doc, {
+    Pair(_, pair, ancestors) {
+      const inWidgets = ancestors.some((a) => YAML.isPair(a) && plain(a.key) === "widgets");
+      if (inWidgets && plain(pair.key) === "type" && isScalar(pair.value) && !WIDGET_TYPES.has(pair.value.value)) {
+        out.push({ from: pair.value.range[0], to: pair.value.range[1], severity: "warning", message: `Type de widget inconnu : « ${pair.value.value} »` });
+      }
+    },
+    Map(_, node, ancestors) {
+      const parentPair = ancestors.findLast((a) => YAML.isPair(a));
+      if (parentPair && plain(parentPair.key) === "sites" && !node.has("url")) {
+        out.push({ from: node.range[0], to: Math.min(node.range[1], node.range[0] + 12), severity: "warning", message: "Ce site n'a pas d'url" });
+      }
+    },
+  });
+  return out;
+}

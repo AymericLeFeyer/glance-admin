@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { timingSafeEqual } from "node:crypto";
 import { checkName, hash, httpError, storageFromEnv } from "./storage.js";
-import { listMonitors, parseDoc, updateMonitor } from "./monitors.js";
+import { addMonitor, deleteMonitor, listMonitors, parseDoc, updateMonitor, validate } from "./monitors.js";
 
 const PUBLIC = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml" };
@@ -87,6 +87,28 @@ export function createApp(storage, { password } = {}) {
       parseDoc(next);
       await storage.write(file, next);
       return json(res, 200, { hash: hash(next), widgets: listMonitors(next) });
+    }
+    if (m === "POST" && url.pathname === "/api/monitors") {
+      const { file, title, hash: prev } = await body(req);
+      checkName(file);
+      const text = await storage.read(file);
+      if (prev && hash(text) !== prev) throw httpError(409, "Le fichier a été modifié ailleurs. Recharge la page.");
+      await storage.write(file, addMonitor(text, String(title ?? "").trim()));
+      return json(res, 200, { ok: true });
+    }
+    if (m === "DELETE" && url.pathname === "/api/monitors") {
+      const { file, path: p, hash: prev } = await body(req);
+      checkName(file);
+      if (!Array.isArray(p)) throw httpError(400, "path requis");
+      const text = await storage.read(file);
+      if (prev && hash(text) !== prev) throw httpError(409, "Le fichier a été modifié ailleurs. Recharge la page.");
+      await storage.write(file, deleteMonitor(text, p));
+      return json(res, 200, { ok: true });
+    }
+    if (m === "POST" && url.pathname === "/api/validate") {
+      const { content } = await body(req);
+      if (typeof content !== "string") throw httpError(400, "content manquant");
+      return json(res, 200, validate(content));
     }
     throw httpError(404, "Route inconnue");
   }
