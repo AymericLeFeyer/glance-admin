@@ -109,5 +109,5 @@ export function updateMonitor(text, path, sites, meta = {}) {
     if (meta.title) target.node.set("title", meta.title);
     else target.node.delete("title");
   }
-  return doc.toString({ lineWidth: 0 });
+  return doc.toString({ lineWidth: 0, flowCollectionPadding: false });
 }
