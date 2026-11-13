@@ -48,6 +48,15 @@ export function createApp(storage, { password } = {}) {
         const content = await storage.read(name);
         return json(res, 200, { name, content, hash: hash(content) });
       }
+      if (m === "POST") {
+        const { name, content = "" } = await body(req);
+        checkName(name);
+        if (typeof content !== "string") throw httpError(400, "content invalide");
+        parseDoc(content);
+        if ((await storage.list()).includes(name)) throw httpError(409, `${name} existe déjà`);
+        await storage.write(name, content);
+        return json(res, 200, { name, hash: hash(content) });
+      }
       if (m === "PUT") {
         const { name, content, hash: prev } = await body(req);
         checkName(name);

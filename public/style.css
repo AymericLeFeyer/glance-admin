@@ -105,7 +105,8 @@ dialog menu { display: flex; justify-content: flex-end; gap: 8px; padding: 0; ma
 
 /* Éditeur YAML */
 #yaml { flex: 1; min-height: 0; display: grid; grid-template-columns: 250px 1fr; }
-#files { border-right: 1px solid var(--line); background: var(--panel); overflow: auto; padding: 10px 8px; }
+#yaml > aside { border-right: 1px solid var(--line); background: var(--panel); overflow: auto; padding: 10px 8px; }
+#new-file { width: 100%; margin-bottom: 6px; }
 #files .dir { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); padding: 12px 10px 4px; }
 #files button { display: block; width: 100%; text-align: left; background: none; border-color: transparent; font: 13px ui-monospace, "SF Mono", Menlo, monospace; border-radius: 6px; padding: 5px 10px; }
 #files button.active { background: var(--hover); color: var(--accent); font-weight: 600; }
@@ -128,5 +129,5 @@ dialog menu { display: flex; justify-content: flex-end; gap: 8px; padding: 0; ma
   .row .url-in, .row .icon-in { grid-column: 3 / -1; }
   .adv { padding-left: 10px; }
   #yaml { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-  #files { border-right: 0; border-bottom: 1px solid var(--line); max-height: 160px; }
+  #yaml > aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 200px; }
 }

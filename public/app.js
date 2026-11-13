@@ -93,6 +93,21 @@ async function openFile(name) {
   }
 }
 
+$("#new-file").onclick = async () => {
+  let name = prompt("Nom du nouveau fichier (ex. widgets/jeux.yml) :", current?.name.includes("/") ? current.name.replace(/[^/]*$/, "") : "");
+  if (!name) return;
+  name = name.trim().replace(/^\/+/, "");
+  if (!/\.ya?ml$/.test(name)) name += ".yml";
+  try {
+    await api("POST", "/api/file", { name, content: "" });
+    await loadFiles();
+    await openFile(name); // demande confirmation si le fichier courant a des modifications
+    toast(`${name} créé — Glance ne le lit que s'il est référencé (« $include: … »)`);
+  } catch (e) {
+    toast(e.message, "err");
+  }
+};
+
 saveBtn.onclick = async () => {
   if (!current || saveBtn.disabled) return;
   saveBtn.disabled = true;

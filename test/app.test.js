@@ -94,3 +94,14 @@ test("ajouter / supprimer une section, valider", async () => {
   assert.deepEqual((await s.call("POST", "/api/validate", { content: "a: 1\n" })).json, []);
   s.close();
 });
+
+test("création de fichier", async () => {
+  const s = await start();
+  const r = await s.call("POST", "/api/file", { name: "widgets/jeux.yml", content: "" });
+  assert.equal(r.status, 200);
+  assert.ok((await s.call("GET", "/api/files")).json.includes("widgets/jeux.yml"));
+  assert.equal((await s.call("POST", "/api/file", { name: "widgets/jeux.yml" })).status, 409);
+  assert.equal((await s.call("POST", "/api/file", { name: "../x.yml" })).status, 400);
+  assert.equal((await s.call("POST", "/api/file", { name: "x.txt" })).status, 400);
+  s.close();
+});

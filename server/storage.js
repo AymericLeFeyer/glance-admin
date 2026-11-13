@@ -97,7 +97,7 @@ export function sshStorage({ host, port = 22, user, dir, keyPath, knownHosts }) 
     // Écriture en place (même inode) : un bind mount d'un fichier unique reste valide,
     // et Glance recharge tout seul à la modification.
     write: (name, content) =>
-      sh(`f=${sq(abs(name))}; cp -p "$f" "$f.bak" 2>/dev/null; cat > "$f"`, content).then(() => {}),
+      sh(`f=${sq(abs(name))}; mkdir -p "$(dirname "$f")"; cp -p "$f" "$f.bak" 2>/dev/null; cat > "$f"`, content).then(() => {}),
   };
 }
 
