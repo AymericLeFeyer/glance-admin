@@ -1,0 +1,24 @@
+theme:
+  background-color: 240 13 14
+
+pages:
+  - name: Homelab
+    columns:
+      - size: small
+        widgets:
+          - $include: widgets/clock.yml
+      - size: full
+        widgets:
+          # Services principaux
+          - type: monitor
+            cache: 1m
+            title: Services
+            sites:
+              - title: Jellyfin
+                url: https://jellyfin.local
+                icon: si:jellyfin # logo
+                allow-insecure: true
+              - title: Dockhand
+                url: http://192.168.68.87:3000
+                icon: si:docker
+                alt-status-codes: [401, 403]

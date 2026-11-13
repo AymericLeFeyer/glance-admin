@@ -1,0 +1,40 @@
+# Stack Dockhand « glance-admin ». Modifie les fichiers de config de Glance en SSH
+# (même chose que d'éditer à la main sur le LXC). Glance recharge tout seul.
+#
+# Variables (onglet Environment de la stack Dockhand) :
+#   SSH_HOST          IP du LXC Glance                                (obligatoire)
+#   SSH_PORT          port SSH du LXC                                 (défaut 22)
+#   SSH_USER          utilisateur SSH                                 (obligatoire)
+#   GLANCE_CONFIG_DIR dossier de glance.yml sur le LXC, ex. /opt/glance/config (obligatoire)
+#   SSH_PRIVATE_KEY   contenu de la clé privée (tout le bloc, sans passphrase) (obligatoire)
+#   ADMIN_PASSWORD    mot de passe (basic auth, identifiant libre). Optionnel.
+#
+# La clé est écrite dans /run/secrets/ssh_key au démarrage : aucun fichier à poser sur l'hôte.
+
+services:
+  glance-admin:
+    image: ghcr.io/aymericlefeyer/glance-admin:latest
+    container_name: glance-admin
+    restart: unless-stopped
+    pull_policy: always
+    ports:
+      - "${GLANCE_ADMIN_PORT:-8084}:8084"
+    environment:
+      SSH_HOST: ${SSH_HOST:?IP du LXC Glance}
+      SSH_PORT: ${SSH_PORT:-22}
+      SSH_USER: ${SSH_USER:?utilisateur SSH}
+      GLANCE_CONFIG_DIR: ${GLANCE_CONFIG_DIR:?dossier de config Glance}
+      SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY:?clé privée SSH}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    volumes:
+      - known_hosts:/data
+    entrypoint:
+      - sh
+      - -c
+      - |
+        umask 077
+        printf '%s\n' "$$SSH_PRIVATE_KEY" > /tmp/ssh_key
+        SSH_KEY_PATH=/tmp/ssh_key SSH_KNOWN_HOSTS=/data/known_hosts exec node server/main.js
+
+volumes:
+  known_hosts:

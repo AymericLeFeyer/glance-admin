@@ -1,0 +1,14 @@
+{
+  "name": "glance-admin",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/main.js",
+    "dev": "GLANCE_LOCAL_DIR=./sample node --watch server/main.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  }
+}

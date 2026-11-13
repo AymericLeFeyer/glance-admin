@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Glance Admin</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Glance <span>Admin</span></h1>
+      <nav>
+        <button data-tab="monitors" class="active">Monitors</button>
+        <button data-tab="yaml">Fichiers YAML</button>
+      </nav>
+      <small id="storage"></small>
+    </header>
+    <main>
+      <section id="monitors"></section>
+      <section id="yaml" hidden>
+        <aside id="files"></aside>
+        <div class="editor">
+          <div class="bar">
+            <strong id="filename">—</strong>
+            <span id="status"></span>
+            <button id="save" class="primary" disabled>Enregistrer (Ctrl+S)</button>
+          </div>
+          <textarea id="text" spellcheck="false" disabled></textarea>
+        </div>
+      </section>
+    </main>
+    <div id="toast"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
