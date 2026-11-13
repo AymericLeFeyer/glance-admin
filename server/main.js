@@ -7,7 +7,7 @@ import { checkName, hash, httpError, storageFromEnv } from "./storage.js";
 import { addMonitor, deleteMonitor, listMonitors, parseDoc, updateMonitor, validate } from "./monitors.js";
 
 const PUBLIC = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png" };
 
 export function createApp(storage, { password } = {}) {
   const json = (res, status, body) => {
