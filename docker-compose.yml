@@ -9,7 +9,7 @@
 #   SSH_PRIVATE_KEY   contenu de la clé privée (tout le bloc, sans passphrase) (obligatoire)
 #   ADMIN_PASSWORD    mot de passe (basic auth, identifiant libre). Optionnel.
 #
-# La clé est écrite dans /run/secrets/ssh_key au démarrage : aucun fichier à poser sur l'hôte.
+# La clé est écrite dans /tmp/ssh_key au démarrage : aucun fichier à poser sur l'hôte.
 
 services:
   glance-admin:

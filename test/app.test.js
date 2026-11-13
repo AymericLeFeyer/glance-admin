@@ -47,6 +47,7 @@ test("modifier un monitor garde les commentaires et crée un .bak", async () => 
   const text = await readFile(path.join(s.dir, file), "utf8");
   assert.match(text, /# Services principaux/);
   assert.match(text, /# logo/);
+  assert.match(text, /alt-status-codes: \[401, 403\]/); // valeur inchangée : style conservé
   assert.match(text, /Dockhand 2/);
   assert.match(text, /alt-status-codes:\n\s+- 200\n\s+- 204/);
   assert.ok(text.indexOf("Dockhand 2") < text.indexOf("Jellyfin"));

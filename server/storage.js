@@ -110,7 +110,7 @@ export function storageFromEnv(env = process.env) {
     port: env.SSH_PORT || 22,
     user: env.SSH_USER,
     dir: env.GLANCE_CONFIG_DIR,
-    keyPath: env.SSH_KEY_PATH || "/run/secrets/ssh_key",
+    keyPath: env.SSH_KEY_PATH,
     knownHosts: env.SSH_KNOWN_HOSTS || "/data/known_hosts",
   });
 }
